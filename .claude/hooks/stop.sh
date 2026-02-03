@@ -3,9 +3,19 @@
 set -euo pipefail
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
-source "$HOOK_DIR/lib/loop-guard.sh" 2>/dev/null || true
-source "$HOOK_DIR/lib/state-manager.sh" 2>/dev/null || true
-source "$HOOK_DIR/lib/json-utils.sh" 2>/dev/null || true
+_libs_loaded=true
+for _lib in loop-guard.sh state-manager.sh json-utils.sh; do
+  if [ -f "$HOOK_DIR/lib/$_lib" ]; then
+    source "$HOOK_DIR/lib/$_lib"
+  else
+    echo "Warning: stop hook missing lib/$_lib, guards disabled" >&2
+    _libs_loaded=false
+  fi
+done
+# 库缺失时防护层无法工作，直接放行避免误阻塞
+if [ "$_libs_loaded" = "false" ]; then
+  exit 0
+fi
 
 # 读取输入（用 read -t 防止 stdin 无数据时阻塞）
 INPUT=""

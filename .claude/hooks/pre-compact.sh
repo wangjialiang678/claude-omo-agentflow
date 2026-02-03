@@ -12,23 +12,21 @@ WF_STATE=$(get_workflow_state 2>/dev/null || echo '{"active":false}')
 TASKS=$(count_pending_tasks 2>/dev/null || echo "0")
 TODOS=$(count_incomplete_todos 2>/dev/null || echo "0")
 
-cat << EOF > "$SNAPSHOT"
-{
-  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "workflow": $WF_STATE,
-  "pending_tasks": $TASKS,
-  "incomplete_todos": $TODOS
-}
-EOF
+# 使用 jq 安全构建 snapshot JSON
+jq -n \
+  --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --argjson wf "$WF_STATE" \
+  --argjson tasks "$TASKS" \
+  --argjson todos "$TODOS" \
+  '{timestamp:$ts, workflow:$wf, pending_tasks:$tasks, incomplete_todos:$todos}' \
+  > "$SNAPSHOT"
+
+# 清理旧 snapshots（保留最近 20 个）
+ls -1t .orchestrator/state/snapshots/*.json 2>/dev/null | tail -n +21 | xargs rm -f 2>/dev/null || true
 
 CURRENT=$(echo "$WF_STATE" | jq -r '.current_stage // "idle"' 2>/dev/null || echo "idle")
-cat << EOF
-{
-  "hookSpecificOutput": {
-    "hookEventName": "PreCompact",
-    "preserveContext": "工作流: $CURRENT。待处理任务: $TASKS。未完成TODO: $TODOS。"
-  }
-}
-EOF
+CONTEXT="工作流: $CURRENT。待处理任务: $TASKS。未完成TODO: $TODOS。"
+jq -n --arg ctx "$CONTEXT" \
+  '{hookSpecificOutput:{hookEventName:"PreCompact",preserveContext:$ctx}}'
 
 exit 0

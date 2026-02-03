@@ -181,8 +181,8 @@
 
 ## 掌天瓶 (Orchestrate)
 
-本项目支持异构多代理掌天瓶。代理注册表见 `AGENTS.md`。
-- **每次对话开始时**：读取 `.orchestrator/state/mode.txt`，在首次回复开头告知用户当前模式（如 `[掌天瓶: OFF]` 或 `[掌天瓶: ON]`）
+本项目支持异构多代理掌天瓶。代理注册表见项目根目录 `AGENTS.md`。
+- **每次对话开始时**：读取 `.orchestrator/state/mode.txt`，在首次回复的模式声明之后告知用户掌天瓶状态。格式示例：`[MODE: RESEARCH] [掌天瓶: ON]`
 - 启用掌天瓶：说"启用掌天瓶"或"orchestrate on"
 - 关闭掌天瓶：说"关闭掌天瓶"或"orchestrate off"
 - 紧急退出：`touch /tmp/FORCE_STOP`

@@ -5,9 +5,20 @@
 
 set -euo pipefail
 
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 <pool-name> <task-descriptions-file>" >&2
+  echo "  task-descriptions-file: each line format: agent-name: description" >&2
+  exit 1
+fi
+
 POOL_NAME="$1"
 TASKS_FILE="$2"
 POOL_FILE=".orchestrator/tasks/task-pool.json"
+
+if [ ! -f "$TASKS_FILE" ]; then
+  echo "Error: tasks file '$TASKS_FILE' not found" >&2
+  exit 1
+fi
 
 mkdir -p .orchestrator/tasks
 
@@ -36,12 +47,11 @@ while IFS=: read -r agent desc; do
   COUNTER=$((COUNTER + 1))
 done < "$TASKS_FILE"
 
-cat << EOF > "$POOL_FILE"
-{
-  "pool_id": "$POOL_NAME",
-  "created_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "tasks": $TASKS_JSON
-}
-EOF
+jq -n \
+  --arg pool_id "$POOL_NAME" \
+  --arg created_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --argjson tasks "$TASKS_JSON" \
+  '{pool_id:$pool_id, created_at:$created_at, tasks:$tasks}' \
+  > "$POOL_FILE"
 
 echo "Created pool '$POOL_NAME' with $((COUNTER - 1)) tasks"

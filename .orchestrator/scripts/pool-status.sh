@@ -1,5 +1,6 @@
 #!/bin/bash
 # 查看任务池状态
+set -euo pipefail
 
 POOL_FILE=".orchestrator/tasks/task-pool.json"
 

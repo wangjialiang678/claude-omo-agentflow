@@ -20,7 +20,7 @@ is_workflow_active() {
 
 get_pending_stages() {
   local state=$(get_workflow_state)
-  echo "$state" | jq -r '.pending_stages | length // 0'
+  echo "$state" | jq -r '(.pending_stages // []) | length'
 }
 
 get_current_stage() {

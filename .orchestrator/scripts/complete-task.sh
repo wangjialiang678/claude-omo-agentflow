@@ -10,7 +10,17 @@ TASK_ID="$1"
 RESULT_FILE="${2:-}"
 
 lock_acquire() {
-  while ! mkdir "$LOCK_DIR" 2>/dev/null; do sleep 0.1; done
+  local waited=0
+  while ! mkdir "$LOCK_DIR" 2>/dev/null; do
+    sleep 0.1
+    waited=$((waited + 1))
+    if [ "$waited" -gt 300 ]; then
+      echo "Lock timeout, breaking stale lock" >&2
+      rm -rf "$LOCK_DIR"
+      mkdir "$LOCK_DIR" 2>/dev/null || true
+      return
+    fi
+  done
 }
 lock_release() {
   rmdir "$LOCK_DIR" 2>/dev/null || true

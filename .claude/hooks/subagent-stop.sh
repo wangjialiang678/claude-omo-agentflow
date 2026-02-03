@@ -11,8 +11,32 @@ done
 AGENT_ID=$(echo "$INPUT" | jq -r '.agent_id // "unknown"' 2>/dev/null || echo "unknown")
 AGENT_TYPE=$(echo "$INPUT" | jq -r '.agent_type // "unknown"' 2>/dev/null || echo "unknown")
 
-mkdir -p .orchestrator/results
-echo "{\"agent_id\":\"$AGENT_ID\",\"agent_type\":\"$AGENT_TYPE\",\"completed_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
-  >> .orchestrator/results/completions.jsonl
+RESULTS_DIR=".orchestrator/results"
+COMPLETIONS_FILE="$RESULTS_DIR/completions.jsonl"
+LOCK_DIR="$RESULTS_DIR/completions.lock.d"
+
+mkdir -p "$RESULTS_DIR"
+
+# 使用 jq 安全构建 JSON，mkdir 原子锁防止并发写入交错
+RECORD=$(jq -n \
+  --arg id "$AGENT_ID" \
+  --arg type "$AGENT_TYPE" \
+  --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  '{agent_id:$id, agent_type:$type, completed_at:$ts}')
+
+# 带超时的锁
+_lock_wait=0
+while ! mkdir "$LOCK_DIR" 2>/dev/null; do
+  sleep 0.1
+  _lock_wait=$((_lock_wait + 1))
+  if [ "$_lock_wait" -gt 50 ]; then
+    rm -rf "$LOCK_DIR"
+    mkdir "$LOCK_DIR" 2>/dev/null || true
+    break
+  fi
+done
+trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
+
+echo "$RECORD" >> "$COMPLETIONS_FILE"
 
 exit 0

@@ -11,10 +11,5 @@ json_get_default() {
 
 json_block_decision() {
   local reason="$1"
-  cat << EOF
-{
-  "decision": "block",
-  "reason": "$reason"
-}
-EOF
+  jq -n --arg reason "$reason" '{"decision":"block","reason":$reason}'
 }

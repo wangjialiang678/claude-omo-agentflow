@@ -14,10 +14,18 @@ if [ ! -f "$POOL_FILE" ]; then
   exit 1
 fi
 
-# macOS 兼容: 使用 mkdir 作为锁
+# macOS 兼容: 使用 mkdir 作为锁（带超时防止永久挂起）
 lock_acquire() {
+  local waited=0
   while ! mkdir "$LOCK_DIR" 2>/dev/null; do
     sleep 0.1
+    waited=$((waited + 1))
+    if [ "$waited" -gt 300 ]; then
+      echo "Lock timeout, breaking stale lock" >&2
+      rm -rf "$LOCK_DIR"
+      mkdir "$LOCK_DIR" 2>/dev/null || true
+      return
+    fi
   done
 }
 
