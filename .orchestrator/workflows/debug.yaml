@@ -1,0 +1,19 @@
+name: bug-fix
+description: Bug 修复流水线
+stages:
+  - name: explore
+    agent: explorer
+    description: 定位问题代码
+    output: .orchestrator/results/explore-output.md
+
+  - name: analyze
+    agent: reviewer
+    description: 分析根因
+    input: .orchestrator/results/explore-output.md
+    output: .orchestrator/results/analysis-output.md
+
+  - name: fix
+    agent: backend-coder
+    description: 修复 bug
+    input: .orchestrator/results/analysis-output.md
+    output: .orchestrator/results/fix-output.md

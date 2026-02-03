@@ -1,0 +1,16 @@
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Orchestrator runtime state (not source)
+.orchestrator/state/
+.orchestrator/results/
+.orchestrator/tasks/task-pool.lock.d/
+
+# Cloned reference repos (research artifacts)
+repos/
+
+# Claude Code local settings
+.claude/settings.local.json
+.claude/memory-bank/

@@ -1,0 +1,19 @@
+name: technical-research
+description: 技术调研流水线
+stages:
+  - name: explore
+    agent: explorer
+    description: 快速搜索相关代码
+    output: .orchestrator/results/explore-output.md
+
+  - name: research
+    agent: researcher
+    description: 深度调研和分析
+    input: .orchestrator/results/explore-output.md
+    output: .orchestrator/results/research-output.md
+
+  - name: summarize
+    agent: doc-writer
+    description: 撰写调研报告
+    input: .orchestrator/results/research-output.md
+    output: .orchestrator/results/research-report.md
