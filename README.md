@@ -2,7 +2,15 @@
 
 > **O**rchestration with **M**ulti-model **O**ptimization for Claude Code **Agent** work**flow**s
 
+中文名：**掌天瓶**
+
 轻量级、文件驱动的 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 多代理编排系统。无框架、无依赖——只用 Shell 脚本、Markdown 和 YAML。
+
+### 为什么叫掌天瓶？
+
+《凡人修仙传》里，资质平平的韩立捡到一个不起眼的小绿瓶——掌天瓶。往里倒点月光，它就能催熟灵药、加速成长，让一个没背景没天赋的凡人一路肝到仙界道祖。
+
+这个项目干的事差不多：你往 Claude Code 里倒点配置（Shell 脚本 + YAML），它就能催熟你的开发流程——把一个普通的单代理 CLI 变成自动编排的多代理流水线。资质不够，外挂来凑。
 
 ## 为什么需要它
 
