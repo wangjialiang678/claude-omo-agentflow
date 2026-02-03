@@ -4,6 +4,7 @@ description: 需求分析和实施规划专家
 model: opus
 tools:
   - Read
+  - Write
   - Glob
   - Grep
   - AskUserQuestion

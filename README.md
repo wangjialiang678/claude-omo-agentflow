@@ -164,3 +164,25 @@ AGENTS.md              # 代理注册表（角色、模型、工具、权限）
 ## License
 
 MIT
+
+## 调试模式
+
+遇到问题时，启用调试模式获取详细日志：
+
+```bash
+ORCHESTRATE_DEBUG=true claude
+```
+
+日志输出到 `.orchestrator/debug.log`。
+
+## 测试
+
+运行测试套件验证核心功能：
+
+```bash
+./tests/run-all.sh
+```
+
+包含的测试：
+- `test-loop-guard.sh` — 四层循环防护机制
+- `test-claim-task.sh` — 任务池原子认领
