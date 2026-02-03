@@ -1207,15 +1207,13 @@ models        →  中转站支持的模型列表
   1. OpenAI ✅
   curl -X POST "https://code.newcli.com/codex/v1/chat/completions" \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer ***REDACTED_API
-  _KEY***" \
+    -H "Authorization: Bearer ***REDACTED_API_KEY***" \
     -d '{"model": "gpt-5.2-codex", "messages": [{"role": "user", "content":
   "Hello"}], "max_tokens": 50}'
   2. Anthropic ✅
   curl -X POST "https://code.newcli.com/claude/droid/v1/messages" \
     -H "Content-Type: application/json" \
-    -H "x-api-key: ***REDACTED_APIqp_Q8bkk_LW
-  __naLdSbUiAQdc926x5oCchfIy_zSBzrl6wcurZcTfpAA" \
+    -H "x-api-key: ***REDACTED_API_KEY***" \
     -H "anthropic-version: 2023-06-01" \
     -d '{"model":"claude-sonnet-4-5-20250929","max_tokens":50,"messages":[{"role":
   "user","content":"Hello"}]}'
@@ -1223,8 +1221,7 @@ models        →  中转站支持的模型列表
   curl -X POST
   "https://code.newcli.com/gemini/v1beta/models/gemini-3-flash:generateContent" \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer ***REDACTED_API
-  _KEY***" \
+    -H "Authorization: Bearer ***REDACTED_API_KEY***" \
     -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
 上面是调用样例。
 我现在主要用的是这个：
