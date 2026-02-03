@@ -2,6 +2,16 @@
 # 自动继续机制 - JSON Decision 模式 + 四层循环防护
 set -euo pipefail
 
+# === DEBUG 模式：设置 ORCHESTRATE_DEBUG=true 启用详细日志 ===
+DEBUG="${ORCHESTRATE_DEBUG:-false}"
+DEBUG_LOG="${ORCHESTRATE_DEBUG_LOG:-.orchestrator/debug.log}"
+if [ "$DEBUG" = "true" ]; then
+  mkdir -p "$(dirname "$DEBUG_LOG")"
+  exec 2>>"$DEBUG_LOG"
+  echo "=== stop.sh $(date -Iseconds) ===" >&2
+  set -x
+fi
+
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 _libs_loaded=true
 for _lib in loop-guard.sh state-manager.sh json-utils.sh; do
@@ -38,24 +48,27 @@ if [ "$STOP_HOOK_ACTIVE" = "true" ]; then
 fi
 
 # === 防护层 2: 紧急退出 ===
-if check_force_stop 2>/dev/null; then
+if check_force_stop; then
+  [ "$DEBUG" = "true" ] && echo "Force stop detected" >&2
   exit 0
 fi
 
 # === 防护层 3: 最大重试 ===
-if check_max_retries 5 2>/dev/null; then
+if check_max_retries 5; then
+  [ "$DEBUG" = "true" ] && echo "Max retries exceeded" >&2
   exit 0
 fi
 
 # === 防护层 4: 超时 ===
-if check_timeout 300 2>/dev/null; then
+if check_timeout 300; then
+  [ "$DEBUG" = "true" ] && echo "Timeout exceeded" >&2
   exit 0
 fi
 
 # === 检查 1: 工作流状态 ===
-if is_workflow_active 2>/dev/null; then
-  PENDING=$(get_pending_stages 2>/dev/null || echo "0")
-  CURRENT=$(get_current_stage 2>/dev/null || echo "unknown")
+if is_workflow_active; then
+  PENDING=$(get_pending_stages || echo "0")
+  CURRENT=$(get_current_stage || echo "unknown")
   if [ "$PENDING" -gt 0 ]; then
     json_block_decision "工作流进行中。当前阶段: $CURRENT，剩余 $PENDING 个阶段。请继续执行。"
     exit 0
@@ -63,19 +76,19 @@ if is_workflow_active 2>/dev/null; then
 fi
 
 # === 检查 2: 任务池 ===
-PENDING_TASKS=$(count_pending_tasks 2>/dev/null || echo "0")
+PENDING_TASKS=$(count_pending_tasks || echo "0")
 if [ "$PENDING_TASKS" -gt 0 ]; then
   json_block_decision "任务池中还有 $PENDING_TASKS 个未完成任务。请继续处理。"
   exit 0
 fi
 
 # === 检查 3: 计划 TODO ===
-INCOMPLETE=$(count_incomplete_todos 2>/dev/null || echo "0")
+INCOMPLETE=$(count_incomplete_todos || echo "0")
 if [ "$INCOMPLETE" -gt 0 ]; then
   json_block_decision "计划中还有 $INCOMPLETE 个未完成的 TODO。请继续执行。"
   exit 0
 fi
 
 # === 全部完成 ===
-cleanup_guard_state 2>/dev/null || true
+cleanup_guard_state || true
 exit 0

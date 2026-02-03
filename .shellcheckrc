@@ -1,0 +1,9 @@
+# ShellCheck configuration
+# https://www.shellcheck.net/wiki/
+
+# 允许 source 动态路径
+external-sources=true
+
+# 忽略一些常见的误报
+disable=SC2034  # 未使用的变量（有时是导出给其他脚本用的）
+disable=SC1091  # source 的文件不存在（运行时才存在）
