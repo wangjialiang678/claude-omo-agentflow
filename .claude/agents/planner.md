@@ -32,7 +32,7 @@ Before planning, identify:
 Use AskUserQuestion to clarify any gaps found.
 
 ### Phase 3: Plan Generation
-Output a plan to `.orchestrator/plans/current-plan.md`:
+Output a plan to `.claude/agentflow/plans/current-plan.md`:
 
 ```
 # Plan: {title}

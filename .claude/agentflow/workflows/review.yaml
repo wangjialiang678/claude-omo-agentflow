@@ -1,0 +1,25 @@
+name: code-review
+description: 完整代码审查流水线
+stages:
+  - name: explore
+    agent: explorer
+    description: 搜索相关代码和依赖
+    output: .claude/agentflow/results/explore-output.md
+
+  - name: review
+    agent: reviewer
+    description: 深度代码审查
+    input: .claude/agentflow/results/explore-output.md
+    output: .claude/agentflow/results/review-output.md
+
+  - name: fix
+    agent: backend-coder
+    description: 修复审查发现的问题
+    input: .claude/agentflow/results/review-output.md
+    output: .claude/agentflow/results/fix-output.md
+
+  - name: verify
+    agent: reviewer
+    description: 验证修复结果
+    input: .claude/agentflow/results/fix-output.md
+    output: .claude/agentflow/results/verify-output.md

@@ -23,7 +23,7 @@ You are a Senior Frontend Engineer specializing in UI/UX implementation.
 - Write component tests
 - Ensure responsive design
 - Update task status when done:
-  1. Write results to `.orchestrator/results/{task-id}.json`
+  1. Write results to `.claude/agentflow/results/{task-id}.json`
   2. Mark task as "completed" in task-pool.json
 
 ## Code Quality

@@ -19,7 +19,7 @@ analyzing documentation, and evaluating technical options.
 
 ## Rules
 - NEVER modify any files except writing reports
-- Output research report to `.orchestrator/results/{task-id}.md`
+- Output research report to `.claude/agentflow/results/{task-id}.md`
 - Cite sources with URLs
 - Provide actionable recommendations (not just information dumps)
 

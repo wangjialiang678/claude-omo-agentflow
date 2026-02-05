@@ -3,17 +3,20 @@
 set -euo pipefail
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/../agentflow/scripts/path-resolver.sh" 2>/dev/null || true
 _libs_loaded=true
 for _lib in loop-guard.sh state-manager.sh json-utils.sh; do
   if [ -f "$HOOK_DIR/lib/$_lib" ]; then
     source "$HOOK_DIR/lib/$_lib"
   else
-    echo "Warning: stop hook missing lib/$_lib, guards disabled" >&2
+    echo "⚠️  stop hook: missing lib/$_lib — loop guards DISABLED" >&2
+    echo "   Fix: ensure .claude/hooks/lib/$_lib exists" >&2
     _libs_loaded=false
   fi
 done
-# 库缺失时防护层无法工作，直接放行避免误阻塞
+# 库缺失时防护层无法工作，放行避免误阻塞（但已警告用户）
 if [ "$_libs_loaded" = "false" ]; then
+  echo "⚠️  stop hook: one or more libs missing, all guard checks skipped" >&2
   exit 0
 fi
 
@@ -26,7 +29,7 @@ done
 STOP_HOOK_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false' 2>/dev/null || echo "false")
 
 # === 掌天瓶模式检查：off 时直接放行 ===
-MODE_FILE=".orchestrator/state/mode.txt"
+MODE_FILE="$(resolve_file "state/mode.txt" 2>/dev/null || echo ".orchestrator/state/mode.txt")"
 MODE=$(cat "$MODE_FILE" 2>/dev/null || echo "off")
 if [ "$MODE" != "on" ]; then
   exit 0

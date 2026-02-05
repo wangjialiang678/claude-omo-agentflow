@@ -3,10 +3,12 @@
 set -euo pipefail
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/../agentflow/scripts/path-resolver.sh" 2>/dev/null || true
 source "$HOOK_DIR/lib/state-manager.sh" 2>/dev/null || true
 
-mkdir -p .orchestrator/state/snapshots
-SNAPSHOT=".orchestrator/state/snapshots/$(date +%s).json"
+STATE_DIR="$(resolve_path "state" 2>/dev/null || echo ".orchestrator/state")"
+mkdir -p "$STATE_DIR/snapshots"
+SNAPSHOT="$STATE_DIR/snapshots/$(date +%s).json"
 
 WF_STATE=$(get_workflow_state 2>/dev/null || echo '{"active":false}')
 TASKS=$(count_pending_tasks 2>/dev/null || echo "0")
@@ -22,7 +24,7 @@ jq -n \
   > "$SNAPSHOT"
 
 # 清理旧 snapshots（保留最近 20 个）
-ls -1t .orchestrator/state/snapshots/*.json 2>/dev/null | tail -n +21 | xargs rm -f 2>/dev/null || true
+ls -1t "$STATE_DIR/snapshots"/*.json 2>/dev/null | tail -n +21 | xargs rm -f 2>/dev/null || true
 
 CURRENT=$(echo "$WF_STATE" | jq -r '.current_stage // "idle"' 2>/dev/null || echo "idle")
 CONTEXT="工作流: $CURRENT。待处理任务: $TASKS。未完成TODO: $TODOS。"

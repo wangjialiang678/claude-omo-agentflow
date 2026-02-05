@@ -1,0 +1,19 @@
+name: feature-implement
+description: 新功能实现流水线
+stages:
+  - name: plan
+    agent: planner
+    description: 分析需求并制定实施计划
+    output: .claude/agentflow/plans/current-plan.md
+
+  - name: implement
+    agent: backend-coder
+    description: 实现核心逻辑
+    input: .claude/agentflow/plans/current-plan.md
+    output: .claude/agentflow/results/impl-output.md
+
+  - name: review
+    agent: reviewer
+    description: 代码审查
+    input: .claude/agentflow/results/impl-output.md
+    output: .claude/agentflow/results/review-output.md

@@ -22,7 +22,7 @@ You are a Senior Backend Engineer. Write production-quality server-side code.
 - Write tests alongside implementation
 - NEVER touch frontend files (*.tsx, *.jsx, *.css, *.vue, *.svelte)
 - Update task status when done:
-  1. Write results to `.orchestrator/results/{task-id}.json`
+  1. Write results to `.claude/agentflow/results/{task-id}.json`
   2. Mark task as "completed" in task-pool.json
 
 ## Code Quality
@@ -43,7 +43,7 @@ You are a Senior Backend Engineer. Write production-quality server-side code.
 
 ## Knowledge Recording
 - After completing a task, if you made a significant technical decision,
-  append it to `.orchestrator/learnings/decisions.md`
+  append it to `.claude/agentflow/learnings/decisions.md`
 - If you encountered an unexpected issue and solved it,
-  append the learning to `.orchestrator/learnings/learnings.md`
+  append the learning to `.claude/agentflow/learnings/learnings.md`
 - Keep entries concise (3-5 lines each)

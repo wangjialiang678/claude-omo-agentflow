@@ -6,9 +6,3 @@
 - Rejection sampling in CredentialGenerator is the correct approach for unbiased random generation, but TokenGenerator lacks the same rigor.
 - Global Zod error map side effects should be avoided in library code; use schema-level error maps instead.
 - Module-level singletons (workerManager) that perform I/O at import time should be avoided; use lazy initialization patterns.
-
-## 2026-02-04: Agentflow Directory Migration (Phase 1-2)
-
-- Used path-resolver.sh with `resolve_path`/`resolve_file` functions for backward-compatible path resolution (new path preferred, old path fallback).
-- All scripts use `2>/dev/null || echo "fallback"` pattern so they degrade gracefully if path-resolver.sh is missing.
-- Migration script preserves originals (copy, not move) to maintain backward compatibility during transition period.

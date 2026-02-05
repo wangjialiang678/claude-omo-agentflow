@@ -1,0 +1,34 @@
+#!/bin/bash
+# Pre-commit hook: block sensitive paths from being committed
+# Install: git config core.hooksPath .githooks
+
+BLOCKED_PATTERNS=(
+  ".claude/memory-bank/"
+  ".orchestrator/state/"
+  ".orchestrator/results/"
+  ".orchestrator/tasks/"
+  ".claude/agentflow/state/"
+  ".claude/agentflow/results/"
+  ".claude/agentflow/tasks/"
+  ".claude/settings.local.json"
+)
+
+staged_files=$(git diff --cached --name-only)
+
+blocked=false
+for file in $staged_files; do
+  for pattern in "${BLOCKED_PATTERNS[@]}"; do
+    if [[ "$file" == $pattern* ]]; then
+      echo "BLOCKED: '$file' matches sensitive path '$pattern'" >&2
+      blocked=true
+    fi
+  done
+done
+
+if [ "$blocked" = true ]; then
+  echo "" >&2
+  echo "Commit rejected: sensitive runtime/state files detected." >&2
+  echo "These paths are gitignored and should not be committed." >&2
+  echo "Use 'git reset HEAD <file>' to unstage, or 'git commit --no-verify' to force." >&2
+  exit 1
+fi

@@ -1,0 +1,19 @@
+name: technical-research
+description: 技术调研流水线
+stages:
+  - name: explore
+    agent: explorer
+    description: 快速搜索相关代码
+    output: .claude/agentflow/results/explore-output.md
+
+  - name: research
+    agent: researcher
+    description: 深度调研和分析
+    input: .claude/agentflow/results/explore-output.md
+    output: .claude/agentflow/results/research-output.md
+
+  - name: summarize
+    agent: doc-writer
+    description: 撰写调研报告
+    input: .claude/agentflow/results/research-output.md
+    output: .claude/agentflow/results/research-report.md

@@ -8,9 +8,23 @@
 .orchestrator/results/
 .orchestrator/tasks/
 
+# Agentflow runtime state (migrated paths)
+.claude/agentflow/state/
+.claude/agentflow/results/
+.claude/agentflow/tasks/
+
 # Cloned reference repos (research artifacts)
 repos/
 
 # Claude Code local settings
 .claude/settings.local.json
 .claude/memory-bank/
+
+# Migration backups
+.orchestrator-migration-backup-*/
+
+# Temporary review/analysis files
+codex-code-review.md
+
+# Backup files
+*.bak

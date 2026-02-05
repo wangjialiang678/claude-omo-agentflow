@@ -1,6 +1,30 @@
 # 掌天瓶 (Orchestrate) — 安装指南
 
-> 本文档面向 AI 阅读。部署时由 Claude Code 或其他 AI 按此文档逐步执行。
+> **本文档面向 AI 阅读**。部署时由 Claude Code 或其他 AI 按此文档逐步执行。
+
+---
+
+## ⚠️ 重要：环境兼容性提醒
+
+**在开始部署前，必须向用户确认运行环境：**
+
+### Claude Code（推荐）
+- ✅ **按本文档直接操作**
+- 所有路径和文件名无需调整
+- `.claude/` 目录结构为标准配置
+
+### Cursor 或其他 AI IDE
+- ⚠️ **可能需要调整路径和文件名**
+- Cursor 使用 `.cursorrules` 而非 `.claude/`
+- 需要根据具体 IDE 的配置目录结构调整：
+  - `.claude/hooks/` → 对应的 hooks 目录
+  - `.claude/agents/` → 对应的 agents 目录
+  - `.claude/skills/` → 对应的 skills/commands 目录
+- 建议用户查阅其 IDE 文档确认正确的配置路径
+
+**如果用户使用的是 Claude Code**，告知用户："您使用的是 Claude Code，可以按标准流程部署，无需调整。"
+
+**如果用户使用的是 Cursor 或其他 IDE**，告知用户："您使用的不是 Claude Code。在部署过程中，我会根据您的 IDE 配置目录结构自动调整路径。请确认您的 IDE 配置目录位置（如 .cursorrules 或其他）。"
 
 ---
 
@@ -42,14 +66,15 @@ node --version  # Node.js 18+，用于 CCR
 .claude/agents/
 .claude/skills/orchestrate/
 .claude/skills/switch-orchestrate/
-.orchestrator/plans/
-.orchestrator/tasks/
-.orchestrator/results/
-.orchestrator/state/
-.orchestrator/state/snapshots/
-.orchestrator/workflows/
-.orchestrator/learnings/
-.orchestrator/scripts/
+.claude/agentflow/plans/
+.claude/agentflow/tasks/
+.claude/agentflow/results/
+.claude/agentflow/state/
+.claude/agentflow/state/snapshots/
+.claude/agentflow/workflows/
+.claude/agentflow/learnings/
+.claude/agentflow/scripts/
+.claude/agentflow/scripts/lib/
 ```
 
 ### 3.2 需要创建的文件
@@ -71,25 +96,26 @@ node --version  # Node.js 18+，用于 CCR
 | `.claude/agents/doc-writer.md` | 本项目 | 文档代理 |
 | `.claude/skills/orchestrate/SKILL.md` | 本项目 | 掌天瓶 Skill |
 | `.claude/skills/switch-orchestrate/SKILL.md` | 本项目 | 模式切换 Skill |
-| `.orchestrator/scripts/create-pool.sh` | 本项目 | 创建任务池 |
-| `.orchestrator/scripts/claim-task.sh` | 本项目 | 原子认领 |
-| `.orchestrator/scripts/complete-task.sh` | 本项目 | 标记完成 |
-| `.orchestrator/scripts/release-timeout.sh` | 本项目 | 超时释放 |
-| `.orchestrator/scripts/pool-status.sh` | 本项目 | 任务池状态 |
-| `.orchestrator/workflows/review.yaml` | 本项目 | 审查流水线 |
-| `.orchestrator/workflows/implement.yaml` | 本项目 | 实现流水线 |
-| `.orchestrator/workflows/research.yaml` | 本项目 | 调研流水线 |
-| `.orchestrator/workflows/debug.yaml` | 本项目 | 修复流水线 |
-| `.orchestrator/learnings/decisions.md` | 本项目 | 决策日志模板 |
-| `.orchestrator/learnings/learnings.md` | 本项目 | 经验日志模板 |
-| `AGENTS.md` | 本项目 | 代理注册表 |
+| `.claude/agentflow/scripts/create-pool.sh` | 本项目 | 创建任务池 |
+| `.claude/agentflow/scripts/claim-task.sh` | 本项目 | 原子认领 |
+| `.claude/agentflow/scripts/complete-task.sh` | 本项目 | 标记完成 |
+| `.claude/agentflow/scripts/release-timeout.sh` | 本项目 | 超时释放 |
+| `.claude/agentflow/scripts/lib/file-lock.sh` | 本项目 | 共享文件锁（PID 验证） |
+| `.claude/agentflow/scripts/pool-status.sh` | 本项目 | 任务池状态 |
+| `.claude/agentflow/workflows/review.yaml` | 本项目 | 审查流水线 |
+| `.claude/agentflow/workflows/implement.yaml` | 本项目 | 实现流水线 |
+| `.claude/agentflow/workflows/research.yaml` | 本项目 | 调研流水线 |
+| `.claude/agentflow/workflows/debug.yaml` | 本项目 | 修复流水线 |
+| `.claude/agentflow/learnings/decisions.md` | 本项目 | 决策日志模板 |
+| `.claude/agentflow/learnings/learnings.md` | 本项目 | 经验日志模板 |
+| `.claude/agentflow/agents.md` | 本项目 | 代理注册表 |
 
 ### 3.3 需要初始化的状态文件
 
 ```bash
-echo '{"active":false}' > .orchestrator/state/workflow-state.json
-echo '{"pool_id":"empty","tasks":[]}' > .orchestrator/tasks/task-pool.json
-echo "off" > .orchestrator/state/mode.txt
+echo '{"active":false}' > .claude/agentflow/state/workflow-state.json
+echo '{"pool_id":"empty","tasks":[]}' > .claude/agentflow/tasks/task-pool.json
+echo "off" > .claude/agentflow/state/mode.txt
 ```
 
 ---
@@ -168,11 +194,11 @@ echo "off" > .orchestrator/state/mode.txt
 ```markdown
 ## 掌天瓶 (Orchestrate)
 
-本项目支持异构多代理掌天瓶。代理注册表见 `AGENTS.md`。
+本项目支持异构多代理掌天瓶。代理注册表见 `.claude/agentflow/agents.md`。
 - 启用掌天瓶：说"启用掌天瓶"或"orchestrate on"
 - 关闭掌天瓶：说"关闭掌天瓶"或"orchestrate off"
 - 紧急退出：`touch /tmp/FORCE_STOP`
-- 当前状态：`.orchestrator/state/mode.txt`（on/off）
+- 当前状态：`.claude/agentflow/state/mode.txt`（on/off）
 ```
 
 **如果用户拒绝修改 CLAUDE.md**，掌天瓶仍可通过 Skill 触发使用，只是不会在 CLAUDE.md 中有提示。
@@ -186,7 +212,8 @@ chmod +x .claude/hooks/stop.sh
 chmod +x .claude/hooks/subagent-stop.sh
 chmod +x .claude/hooks/pre-compact.sh
 chmod +x .claude/hooks/lib/*.sh
-chmod +x .orchestrator/scripts/*.sh
+chmod +x .claude/agentflow/scripts/*.sh
+chmod +x .claude/agentflow/scripts/lib/*.sh
 ```
 
 ---
@@ -261,7 +288,7 @@ ccr code    # 用 CCR 启动 Claude Code
 
 ```bash
 echo "=== 目录结构 ==="
-for d in .claude/hooks/lib .claude/agents .claude/skills/orchestrate .orchestrator/scripts .orchestrator/workflows .orchestrator/state; do
+for d in .claude/hooks/lib .claude/agents .claude/skills/orchestrate .claude/agentflow/scripts .claude/agentflow/workflows .claude/agentflow/state; do
   test -d "$d" && echo "  ✓ $d" || echo "  ✗ $d"
 done
 
@@ -285,25 +312,40 @@ echo '{"stop_hook_active":false}' | .claude/hooks/stop.sh > /dev/null 2>&1
 echo "  off 模式 exit: $? (expect 0)"
 
 # 切换到 on
-echo "on" > .orchestrator/state/mode.txt
-echo "- [ ] task 1" > .orchestrator/plans/current-plan.md
+echo "on" > .claude/agentflow/state/mode.txt
+echo "- [ ] task 1" > .claude/agentflow/plans/current-plan.md
 RESULT=$(echo '{"stop_hook_active":false}' | .claude/hooks/stop.sh 2>/dev/null)
 echo "$RESULT" | jq -r '.decision' 2>/dev/null | grep -q "block" \
   && echo "  ✓ on 模式阻止停止" || echo "  ✗ on 模式应阻止"
 
 # 清理
-echo "off" > .orchestrator/state/mode.txt
-rm -f .orchestrator/plans/current-plan.md
-rm -f .orchestrator/state/stop-retries.txt .orchestrator/state/stop-start-time.txt
+echo "off" > .claude/agentflow/state/mode.txt
+rm -f .claude/agentflow/plans/current-plan.md
+rm -f .claude/agentflow/state/stop-retries.txt .claude/agentflow/state/stop-start-time.txt
 echo "  ✓ 清理完成"
 ```
 
 ---
 
-## 九、注意事项
+## 九、（可选）启用 Git Pre-commit 保护
+
+防止敏感运行时文件被意外提交：
+
+```bash
+git config core.hooksPath .githooks
+```
+
+这会激活 `.githooks/pre-commit`，阻止以下路径进入 git：
+- `.claude/memory-bank/`
+- `.orchestrator/state/`、`.orchestrator/results/`、`.orchestrator/tasks/`
+- `.claude/settings.local.json`
+
+---
+
+## 十、注意事项
 
 1. **Hook 必须直接安装到 `.claude/hooks/`**，不要用 Plugin 安装（存在 exit code 2 bug）
 2. **默认模式为 off**，不会干扰非编码任务（调研、写作等）
 3. **CCR 标签在无 CCR 时无害**，代理仍可通过 Claude 原生模型工作
-4. **macOS 兼容**：任务池脚本使用 `mkdir` 锁，不依赖 `flock`
+4. **macOS 兼容**：任务池脚本使用 `mkdir` 锁（带 PID 验证），不依赖 `flock`
 5. **紧急退出**：任何时候 `touch /tmp/FORCE_STOP` 都能让 Stop Hook 放行

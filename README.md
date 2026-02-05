@@ -79,7 +79,7 @@ Claude Code 通过 `Task` 工具支持子代理，但在复杂项目中有三个
 
 ### Pipeline（流水线）
 
-链式多阶段工作流，定义在 `.orchestrator/workflows/`：
+链式多阶段工作流，定义在 `.claude/agentflow/workflows/`：
 
 | 工作流 | 阶段 |
 |--------|------|
@@ -121,6 +121,10 @@ planner 代理生成 TODO 计划，然后每一项自动委派给对应代理。
 
 手动安装或高级配置（CCR 模型路由、Provider 选择）请参考 [INSTALL.md](INSTALL.md)。
 
+### AI 自动部署
+
+如果你不想手动操作，可以把 [AI-DEPLOY.md](AI-DEPLOY.md) 发给任意 AI IDE（Claude Code、Cursor、Trae 等），AI 会自动识别你的环境并完成部署。支持跨 IDE 部署——详见文档内的兼容性矩阵。
+
 ## 文件结构
 
 ```
@@ -132,16 +136,16 @@ planner 代理生成 TODO 计划，然后每一项自动委派给对应代理。
     orchestrate/       # 编排主 skill (SKILL.md)
   settings.json        # Hook 注册配置
 
-.orchestrator/
+.claude/agentflow/
   workflows/           # 流水线定义 (YAML)
   scripts/             # 任务池管理：create、claim、complete、release、status
+    lib/               # 共享库（file-lock 等）
   tasks/               # 运行时任务池（gitignored）
   state/               # 运行时状态（gitignored）
   results/             # 代理输出（gitignored）
   learnings/           # 决策与经验日志
   plans/               # 执行计划
-
-AGENTS.md              # 代理注册表（角色、模型、工具、权限）
+  agents.md            # 代理注册表（角色、模型、工具、权限）
 ```
 
 ## 安全机制
@@ -152,6 +156,11 @@ AGENTS.md              # 代理注册表（角色、模型、工具、权限）
 2. **强制停止文件** — `touch /tmp/FORCE_STOP` 绕过所有检查
 3. **最大重试计数** — 连续阻止 5 次后，Hook 自动放行
 4. **超时机制** — 阻止超过 300 秒后，Hook 自动放行
+
+**数据安全**：运行时状态目录（`.orchestrator/state/`、`.orchestrator/results/`、`.claude/agentflow/state/`、`.claude/agentflow/tasks/`、`.claude/memory-bank/`）已 gitignore。项目还提供 `.githooks/pre-commit` 钩子，防止这些路径被意外提交。启用方式：
+```bash
+git config core.hooksPath .githooks
+```
 
 系统**默认关闭**，不会干扰任何操作，直到你明确启用。
 

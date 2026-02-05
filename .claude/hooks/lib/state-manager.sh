@@ -1,7 +1,9 @@
 #!/bin/bash
 # 状态管理函数
 
-STATE_DIR=".orchestrator/state"
+_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$_LIB_DIR/../../agentflow/scripts/path-resolver.sh" 2>/dev/null || true
+STATE_DIR="$(resolve_path "state" 2>/dev/null || echo ".orchestrator/state")"
 
 get_workflow_state() {
   local file="$STATE_DIR/workflow-state.json"
@@ -29,7 +31,7 @@ get_current_stage() {
 }
 
 count_pending_tasks() {
-  local pool=".orchestrator/tasks/task-pool.json"
+  local pool="$(resolve_file "tasks/task-pool.json" 2>/dev/null || echo ".orchestrator/tasks/task-pool.json")"
   if [ -f "$pool" ]; then
     jq '[.tasks[] | select(.status == "pending" or .status == "claimed")] | length' "$pool" 2>/dev/null || echo "0"
   else
@@ -38,7 +40,7 @@ count_pending_tasks() {
 }
 
 count_incomplete_todos() {
-  local plan=".orchestrator/plans/current-plan.md"
+  local plan="$(resolve_file "plans/current-plan.md" 2>/dev/null || echo ".orchestrator/plans/current-plan.md")"
   if [ -f "$plan" ]; then
     grep -c '^\- \[ \]' "$plan" 2>/dev/null || echo "0"
   else

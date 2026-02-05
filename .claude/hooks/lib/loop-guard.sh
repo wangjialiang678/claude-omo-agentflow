@@ -1,7 +1,9 @@
 #!/bin/bash
 # 四层循环防护
 
-GUARD_STATE_DIR=".orchestrator/state"
+_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$_LIB_DIR/../../agentflow/scripts/path-resolver.sh" 2>/dev/null || true
+GUARD_STATE_DIR="$(resolve_path "state" 2>/dev/null || echo ".orchestrator/state")"
 
 check_force_stop() {
   if [ -f /tmp/FORCE_STOP ]; then

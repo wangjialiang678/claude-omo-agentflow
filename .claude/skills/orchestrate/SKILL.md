@@ -35,7 +35,7 @@ allowed-tools:
 | 需求规划 | planner | Claude Opus (native) | Read-only |
 | 核心代码 | 主代理自行处理 | Claude Opus (native) | Full |
 
-完整注册表见 `AGENTS.md`。
+完整注册表见 `.claude/agentflow/agents.md`。
 
 ## 三种执行模式
 
@@ -49,7 +49,7 @@ allowed-tools:
 - "按 research 流水线调研 {topic}"
 - "按 debug 流水线修复 {bug}"
 
-**可用预设**（定义在 `.orchestrator/workflows/`）：
+**可用预设**（定义在 `.claude/agentflow/workflows/`）：
 
 | 预设 | 阶段 |
 |------|------|
@@ -59,7 +59,7 @@ allowed-tools:
 | debug | explore → analyze → fix |
 
 **执行流程**：
-1. 读取 `.orchestrator/workflows/{预设}.yaml`
+1. 读取 `.claude/agentflow/workflows/{预设}.yaml`
 2. 设置 workflow-state.json: `active=true`, 记录 stages
 3. 按顺序委派每个 stage 给对应代理
 4. 每个 stage 完成后更新 state
@@ -97,7 +97,7 @@ planner 规划 → 自动按计划执行。
 5. Stop Hook 检查 task-pool → 阻止停止
 6. 全部完成 → 允许停止
 
-**任务池脚本**（`.orchestrator/scripts/`）：
+**任务池脚本**（`.claude/agentflow/scripts/`）：
 - `create-pool.sh <name> <tasks-file>` — 创建任务池
 - `claim-task.sh <worker-id> [agent]` — 原子认领
 - `complete-task.sh <task-id> [result]` — 标记完成
@@ -115,14 +115,14 @@ planner 规划 → 自动按计划执行。
 
 ## 结果输出规范
 
-所有子代理输出写入 `.orchestrator/results/`：
+所有子代理输出写入 `.claude/agentflow/results/`：
 - 代码任务: `{task-id}.json`（含 verdict, issues, tests_passed）
 - 调研任务: `{task-id}.md`（Markdown 报告）
 - 搜索任务: `{task-id}.json`（文件列表和代码片段）
 
 ## 工作流状态管理
 
-状态文件：`.orchestrator/state/workflow-state.json`
+状态文件：`.claude/agentflow/state/workflow-state.json`
 
 ```json
 {

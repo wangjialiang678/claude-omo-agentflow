@@ -11,7 +11,9 @@ done
 AGENT_ID=$(echo "$INPUT" | jq -r '.agent_id // "unknown"' 2>/dev/null || echo "unknown")
 AGENT_TYPE=$(echo "$INPUT" | jq -r '.agent_type // "unknown"' 2>/dev/null || echo "unknown")
 
-RESULTS_DIR=".orchestrator/results"
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/../agentflow/scripts/path-resolver.sh" 2>/dev/null || true
+RESULTS_DIR="$(resolve_path "results" 2>/dev/null || echo ".orchestrator/results")"
 COMPLETIONS_FILE="$RESULTS_DIR/completions.jsonl"
 LOCK_DIR="$RESULTS_DIR/completions.lock.d"
 
